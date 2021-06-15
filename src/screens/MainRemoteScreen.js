@@ -3,14 +3,44 @@ import { View, Text, StyleSheet, ScrollView, Dimensions } from "react-native"
 import { Input, Overlay, Icon } from 'react-native-elements';
 import { connect } from "react-redux"
 import { GET_SCREEN_STATE_REQUESTED, UPDATE_SCREEN_STATE_REQUESTED } from "../redux/actions/screenState.action"
+//import Geolocation from '@react-native-community/geolocation';
+
+function YouTubeGetID(url) {
+    var ID = '';
+    url = url.replace(/(>|<)/gi, '').split(/(vi\/|v=|\/v\/|youtu\.be\/|\/embed\/)/);
+    if (url[2] !== undefined) {
+        ID = url[2].split(/[^0-9a-z_\-]/i);
+        ID = ID[0];
+    }
+    else {
+        ID = url;
+    }
+    return ID;
+}
+
 function Remote({
     screenState,
     loading,
     getScreen,
     updateScreen
 }) {
+    console.log(position)
+    const [position, setPosition] = React.useState(null)
+    watchID = null
     React.useEffect(() => {
         getScreen()
+        /* Geolocation.getCurrentPosition(
+            position => {
+              const initialPosition = JSON.stringify(position);
+              setPosition({initialPosition});
+            },
+            error => Alert.alert('Error', JSON.stringify(error)),
+            {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
+          );
+        watchID = Geolocation.watchPosition(position => {
+            const lastPosition = JSON.stringify(position);
+            setPosition({lastPosition}); */
+          /* }); */
     }, [])
     const modules = [
         'searchQuery',
@@ -68,8 +98,9 @@ function Remote({
         })
     }
     const handleVideoBlur = (e) => {
+        console.log(YouTubeGetID(videoId))
         updateScreen({
-            videoID: videoId
+            videoID: YouTubeGetID(videoId)
         })
     }
     /* HORLOGE */
@@ -114,13 +145,14 @@ function Remote({
         setNote(screenState?.note)
         setNotes(screenState?.notesList || [])
         setVideo(screenState?.video)
-        setVideoId(screenState?.videoID)
+        setVideoId(screenState?.videoID ?  "https://www.youtube.com/watch?" + screenState?.videoID : "")
         setHorloge(screenState?.timing)
         setQuotes(screenState?.quotes)
         setForecast(screenState?.forecast)
         setNews(screenState?.news)
         setNewsQuery(screenState?.searchQuery)
     }, [screenState])
+
     return (
         <>
             <ScrollView contentContainerStyle={styles.container}>
